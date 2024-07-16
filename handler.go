@@ -99,19 +99,3 @@ type OpenapiURL struct {
 	Name string `json:"name"`
 	URL  string `json:"url"`
 }
-
-type fileSystem struct {
-	fs        http.FileSystem
-	indexFile http.File
-}
-
-func (r fileSystem) Open(name string) (http.File, error) {
-	f, err := r.fs.Open(name)
-	if err != nil {
-		return nil, err
-	}
-	if name == "/index.html" {
-		return r.indexFile, nil
-	}
-	return f, err
-}
