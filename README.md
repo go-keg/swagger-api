@@ -1,7 +1,7 @@
 # swagger-api
 
 
-## 安装相关依赖
+## Install
 
 ### protoc-gen-openapi
 ```shell
@@ -14,10 +14,18 @@ go get github.com/rakyll/statik
 go install github.com/rakyll/statik
 ```
 
+## QuickStart
 ### [example](./examples/main.go)
 
+```shell
+protoc --proto_path=./api/ \
+    --proto_path=./third_party \
+    --openapi_out=output_mode=source_relative:./api/ \
+    $(API_PROTO_FILES)
+statik -src=./api -include=*.openapi.yaml -ns apis	
+```
+
 ```go
-//go:generate statik -src=./apis/api -include=*.openapi.yaml -ns apis
 package main
 
 import (
