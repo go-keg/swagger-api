@@ -31,7 +31,7 @@ package main
 
 import (
 	"github.com/eiixy/swagger-api"
-	_ "github.com/eiixy/swagger-api/examples/statik"
+	_ "github.com/eiixy/swagger-api/examples/apis/statik"
 	"github.com/rakyll/statik/fs"
 	"net/http"
 )
