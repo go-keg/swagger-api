@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package apis.auth.v1;
+
+import "google/protobuf/empty.proto";
+import "google/api/annotations.proto";
+import "openapiv3/annotations.proto";
+
+option go_package = "github.com/eiixy/swagger-api/apis/api/auth-interface/v1;v1";
+
+option (openapi.v3.document) = {
+  servers: [
+    {
+      description: "local"
+      url:"http://127.0.0.1:8080"
+    }, {
+      description: "dev"
+      url:"https://api-dev.example.com"
+    }, {
+      description: "production"
+      url:"https://api.example.com"
+    }
+  ]
+  components:{
+    security_schemes:{
+      additional_properties: [
+        {
+          name:"jwt",
+          value:{
+            security_scheme:{
+              type: "http"
+              scheme: "bearer"
+              bearer_format: "JWT"
+            }
+          }
+        }
+      ]
+    }
+  }
+};
+
+service Auth {
+  // auth
+  rpc GetPermissions(google.protobuf.Empty) returns (GetPermissionsReply){
+    option (google.api.http) = {
+      get: "/permissions"
+    };
+    option (openapi.v3.operation) = {
+      security: {
+        additional_properties: {
+          name: "jwt"
+          value: {}
+        }
+      }
+    };
+  };
+}
+
+message GetPermissionsReply {
+  repeated Permission items = 1;
+}
+
+message Permission {
+  int64 id = 1;
+  string name = 2;
+  string key = 3;
+}

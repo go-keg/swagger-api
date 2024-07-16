@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package apis.account.interface.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "openapiv3/annotations.proto";
+
+option go_package = "github.com/eiixy/swagger-api/apis/api/account-interface/v1;v1";
+
+option (openapi.v3.document) = {
+  servers: [
+    {
+      description: "local"
+      url:"http://127.0.0.1:8080"
+    }, {
+      description: "dev"
+      url:"https://api-dev.example.com"
+    }, {
+      description: "production"
+      url:"https://api.example.com"
+    }
+  ]
+  components:{
+    security_schemes:{
+      additional_properties: [
+        {
+          name:"jwt",
+          value:{
+            security_scheme:{
+              type: "http"
+              scheme: "bearer"
+              bearer_format: "JWT"
+            }
+          }
+        }
+      ]
+    }
+  }
+};
+
+service Account {
+  rpc Profile(google.protobuf.Empty) returns (ProfileReply){
+    option (google.api.http) = {
+      get: "/profile"
+    };
+    option (openapi.v3.operation) = {
+      security: {
+        additional_properties: {
+          name: "jwt"
+          value: {}
+        }
+      }
+    };
+  };
+
+  rpc Login(LoginRequest) returns (LoginReply){
+    option (google.api.http) = {
+      post: "/login"
+      body: "*"
+    };
+  };
+}
+
+message ProfileReply {
+  AccountInfo account = 1;
+}
+
+message LoginRequest {
+  // 登录账号 username 或 email
+  string account = 1;
+  // 密码
+  string password = 2;
+  // 记住登录状态（一周）
+  bool remember = 3;
+}
+
+message LoginReply {
+  string token = 1;
+  uint32 ttl = 2;
+  AccountInfo account = 3;
+}
+
+message AccountInfo {
+  int64 id = 1;
+  string nickname = 2;
+}

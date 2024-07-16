@@ -1,0 +1,126 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: Account API
+    version: 0.0.1
+servers:
+    - url: http://127.0.0.1:8080
+      description: local
+    - url: https://api-dev.example.com
+      description: dev
+    - url: https://api.example.com
+      description: production
+paths:
+    /login:
+        post:
+            tags:
+                - Account
+            operationId: Account_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LoginReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /profile:
+        get:
+            tags:
+                - Account
+            operationId: Account_Profile
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ProfileReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+            security:
+                - jwt: []
+components:
+    schemas:
+        AccountInfo:
+            type: object
+            properties:
+                id:
+                    type: string
+                nickname:
+                    type: string
+        GoogleProtobufAny:
+            type: object
+            properties:
+                '@type':
+                    type: string
+                    description: The type of the serialized message.
+            additionalProperties: true
+            description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        LoginReply:
+            type: object
+            properties:
+                token:
+                    type: string
+                ttl:
+                    type: integer
+                    format: uint32
+                account:
+                    $ref: '#/components/schemas/AccountInfo'
+        LoginRequest:
+            type: object
+            properties:
+                account:
+                    type: string
+                    description: 登录账号 username 或 email
+                password:
+                    type: string
+                    description: 密码
+                remember:
+                    type: boolean
+                    description: 记住登录状态（一周）
+        ProfileReply:
+            type: object
+            properties:
+                account:
+                    $ref: '#/components/schemas/AccountInfo'
+        Status:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: The status code, which should be an enum value of [google.rpc.Code][google.rpc.Code].
+                    format: int32
+                message:
+                    type: string
+                    description: A developer-facing error message, which should be in English. Any user-facing error message should be localized and sent in the [google.rpc.Status.details][google.rpc.Status.details] field, or localized by the client.
+                details:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/GoogleProtobufAny'
+                    description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
+            description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+    securitySchemes:
+        jwt:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+tags:
+    - name: Account
