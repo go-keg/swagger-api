@@ -15,8 +15,8 @@ go install github.com/rakyll/statik
 ```
 
 ## QuickStart
-### [example](./examples/main.go)
 
+[examples/apis/Makefile](./examples/apis/Makefile)
 ```shell
 protoc --proto_path=./api/ \
     --proto_path=./third_party \
@@ -25,6 +25,7 @@ protoc --proto_path=./api/ \
 statik -src=./api -include=*.openapi.yaml -ns apis	
 ```
 
+[examples/main.go](./examples/main.go)
 ```go
 package main
 
