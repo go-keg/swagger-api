@@ -7,6 +7,7 @@ import (
 	"github.com/rakyll/statik/fs"
 	"html/template"
 	"net/http"
+	"path"
 )
 
 const IndexTemp = `<!-- HTML for static distribution bundle build -->
@@ -46,35 +47,51 @@ const IndexTemp = `<!-- HTML for static distribution bundle build -->
 </html>`
 
 type config struct {
-	swaggerUIPrefix string
-	openapiPrefix   string
+	prefix        string
+	swaggerUIPath string
+	openapiPath   string
+}
+
+func (r config) SwaggerUIPath() string {
+	return path.Join("/", r.prefix, r.swaggerUIPath)
+}
+
+func (r config) OpenapiPath() string {
+	return path.Join("/", r.prefix, r.openapiPath)
 }
 
 type Option func(cfg *config)
 
-func SetSwaggerUIPrefix(prefix string) Option {
+func SetPrefix(prefix string) Option {
 	return func(cfg *config) {
-		cfg.swaggerUIPrefix = prefix
+		cfg.prefix = prefix
 	}
 }
 
-func SetOpenapiPrefix(prefix string) Option {
+func SetSwaggerUIPath(path string) Option {
 	return func(cfg *config) {
-		cfg.openapiPrefix = prefix
+		cfg.swaggerUIPath = path
+	}
+}
+
+func SetOpenapiPath(path string) Option {
+	return func(cfg *config) {
+		cfg.openapiPath = path
 	}
 }
 
 // Handler swagger ui
 func Handler(apis http.FileSystem, urls []OpenapiURL, opts ...Option) http.Handler {
 	cfg := config{
-		swaggerUIPrefix: "/swagger-ui",
-		openapiPrefix:   "/openapi/apis",
+		prefix:        "",
+		swaggerUIPath: "/swagger-ui",
+		openapiPath:   "/openapi/apis",
 	}
 	for _, opt := range opts {
 		opt(&cfg)
 	}
 	for i := range urls {
-		urls[i].URL = cfg.openapiPrefix + urls[i].URL
+		urls[i].URL = cfg.OpenapiPath() + urls[i].URL
 	}
 	swaggerFS, err := fs.NewWithNamespace("swagger-ui")
 	if err != nil {
@@ -84,14 +101,14 @@ func Handler(apis http.FileSystem, urls []OpenapiURL, opts ...Option) http.Handl
 	router := gin.New()
 	router.SetHTMLTemplate(template.Must(template.New("swagger-ui").Parse(IndexTemp)))
 	gin.SetMode(gin.ReleaseMode)
-	router.GET(cfg.swaggerUIPrefix, func(c *gin.Context) {
+	router.GET(cfg.SwaggerUIPath(), func(c *gin.Context) {
 		c.HTML(200, "swagger-ui", map[string]any{
 			"URLs":   urls,
-			"Prefix": cfg.swaggerUIPrefix + "/public",
+			"Prefix": cfg.SwaggerUIPath() + "/public",
 		})
 	})
-	router.StaticFS(cfg.swaggerUIPrefix+"/public", swaggerFS)
-	router.StaticFS(cfg.openapiPrefix, apis)
+	router.StaticFS(cfg.SwaggerUIPath()+"/public", swaggerFS)
+	router.StaticFS(cfg.OpenapiPath(), apis)
 	return router
 }
 
