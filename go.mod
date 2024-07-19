@@ -1,6 +1,6 @@
 module github.com/eiixy/swagger-api
 
-go 1.22.3
+go 1.18.0
 
 require (
 	github.com/gin-gonic/gin v1.10.0
