@@ -22,7 +22,6 @@ protoc --proto_path=./api/ \
     --proto_path=./third_party \
     --openapi_out=output_mode=source_relative:./api/ \
     $(API_PROTO_FILES)
-statik -src=./api -include=*.openapi.yaml -ns apis	
 ```
 
 [examples/main.go](./examples/main.go)
@@ -31,19 +30,13 @@ package main
 
 import (
 	"github.com/eiixy/swagger-api"
-	_ "github.com/eiixy/swagger-api/examples/apis/statik"
-	"github.com/rakyll/statik/fs"
+	"github.com/eiixy/swagger-api/examples/apis/api"
 	"net/http"
 )
 
 func main() {
-	apisFS, err := fs.NewWithNamespace("apis")
-	if err != nil {
-		panic(err)
-	}
-
 	mux := http.NewServeMux()
-	mux.Handle("/swagger/", swagger.Handler(apisFS, []swagger.OpenapiURL{
+	mux.Handle("/swagger/", swagger.Handler(http.FS(api.OpenapiFS), []swagger.OpenapiURL{
 		{"Account Interface", "/account-interface/v1/account.openapi.yaml"},
 		{"Auth Interface", "/auth-interface/v1/auth.openapi.yaml"},
 	},
@@ -51,7 +44,7 @@ func main() {
 		swagger.SetSwaggerUIPath("ui"),
 		swagger.SetOpenapiPath("apis"),
 	))
-	err = http.ListenAndServe(":8088", mux)
+	err := http.ListenAndServe(":8088", mux)
 	if err != nil {
 		panic(err)
 	}
