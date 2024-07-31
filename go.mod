@@ -4,7 +4,6 @@ go 1.18.0
 
 require (
 	github.com/gin-gonic/gin v1.10.0
-	github.com/rakyll/statik v0.1.7
 )
 
 require (

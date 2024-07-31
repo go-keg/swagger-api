@@ -1,10 +1,8 @@
-//go:generate statik -src=../../zapis/api -include=*.openapi.yaml -ns apis -p apis
 package swagger
 
 import (
-	_ "github.com/eiixy/swagger-api/swagger"
+	"github.com/eiixy/swagger-api/dist"
 	"github.com/gin-gonic/gin"
-	"github.com/rakyll/statik/fs"
 	"html/template"
 	"net/http"
 	"path"
@@ -93,10 +91,6 @@ func Handler(apis http.FileSystem, urls []OpenapiURL, opts ...Option) http.Handl
 	for i := range urls {
 		urls[i].URL = cfg.OpenapiPath() + urls[i].URL
 	}
-	swaggerFS, err := fs.NewWithNamespace("swagger-ui")
-	if err != nil {
-		panic(err)
-	}
 
 	router := gin.New()
 	router.SetHTMLTemplate(template.Must(template.New("swagger-ui").Parse(IndexTemp)))
@@ -107,7 +101,7 @@ func Handler(apis http.FileSystem, urls []OpenapiURL, opts ...Option) http.Handl
 			"Prefix": cfg.SwaggerUIPath() + "/public",
 		})
 	})
-	router.StaticFS(cfg.SwaggerUIPath()+"/public", swaggerFS)
+	router.StaticFS(cfg.SwaggerUIPath()+"/public", http.FS(dist.SwagFS))
 	router.StaticFS(cfg.OpenapiPath(), apis)
 	return router
 }
