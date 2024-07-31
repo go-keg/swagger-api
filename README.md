@@ -57,3 +57,5 @@ func main() {
 	}
 }
 ```
+
+SwaggerUI: http://127.0.0.1:8088/swagger/ui
