@@ -8,7 +8,7 @@ import (
 
 func main() {
 	mux := http.NewServeMux()
-	mux.Handle("/swagger/", swagger.Handler(http.FS(api.OpenapiFS), []swagger.OpenapiURL{
+	mux.Handle("/swagger/", swagger.Handler(http.FS(api.FS), []swagger.OpenapiURL{
 		{"Account Interface", "/account-interface/v1/account.openapi.yaml"},
 		{"Auth Interface", "/auth-interface/v1/auth.openapi.yaml"},
 	},
