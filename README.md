@@ -8,12 +8,6 @@
 go install github.com/google/gnostic/cmd/protoc-gen-openapi
 ```
 
-### statik
-```shell
-go get github.com/rakyll/statik
-go install github.com/rakyll/statik
-```
-
 ## QuickStart
 
 [examples/apis/Makefile](./examples/apis/Makefile)
