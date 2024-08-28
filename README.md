@@ -37,13 +37,9 @@ import (
 func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/swagger/", swagger.Handler(http.FS(api.FS), []swagger.OpenapiURL{
-		{"Account Interface", "/account-interface/v1/account.openapi.yaml"},
-		{"Auth Interface", "/auth-interface/v1/auth.openapi.yaml"},
-	},
-		swagger.SetPrefix("/swagger"),
-		swagger.SetSwaggerUIPath("ui"),
-		swagger.SetOpenapiPath("apis"),
-	))
+		{Name: "Account Interface", URL: "/account-interface/v1/account.openapi.yaml"},
+		{Name: "Auth Interface", URL: "/auth-interface/v1/auth.openapi.yaml"},
+	}))
 	err := http.ListenAndServe(":8088", mux)
 	if err != nil {
 		panic(err)

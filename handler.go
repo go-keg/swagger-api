@@ -1,11 +1,12 @@
 package swagger
 
 import (
-	"github.com/eiixy/swagger-api/dist"
-	"github.com/gin-gonic/gin"
 	"html/template"
 	"net/http"
 	"path"
+
+	"github.com/eiixy/swagger-api/dist"
+	"github.com/gin-gonic/gin"
 )
 
 const IndexTemp = `<!-- HTML for static distribution bundle build -->
@@ -81,9 +82,9 @@ func SetOpenapiPath(path string) Option {
 // Handler swagger ui
 func Handler(apis http.FileSystem, urls []OpenapiURL, opts ...Option) http.Handler {
 	cfg := config{
-		prefix:        "",
-		swaggerUIPath: "/swagger-ui",
-		openapiPath:   "/openapi/apis",
+		prefix:        "swagger",
+		swaggerUIPath: "ui",
+		openapiPath:   "apis",
 	}
 	for _, opt := range opts {
 		opt(&cfg)
