@@ -23,9 +23,10 @@ protoc --proto_path=./api/ \
 package main
 
 import (
+	"net/http"
+
 	"github.com/go-keg/swagger-api"
 	"github.com/go-keg/swagger-api/examples/apis/api"
-	"net/http"
 )
 
 func main() {
