@@ -1,4 +1,4 @@
-module github.com/eiixy/swagger-api
+module github.com/go-keg/swagger-api
 
 go 1.18.0
 
