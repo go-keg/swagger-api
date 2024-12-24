@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/eiixy/swagger-api/dist"
 	"github.com/gin-gonic/gin"
+	"github.com/go-keg/swagger-api/dist"
 )
 
 const IndexTemp = `<!-- HTML for static distribution bundle build -->

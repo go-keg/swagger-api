@@ -6,7 +6,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "openapiv3/annotations.proto";
 
-option go_package = "github.com/eiixy/swagger-api/apis/api/account-interface/v1;v1";
+option go_package = "github.com/go-keg/swagger-api/apis/api/account-interface/v1;v1";
 
 option (openapi.v3.document) = {
   servers: [

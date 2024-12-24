@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/eiixy/swagger-api"
-	"github.com/eiixy/swagger-api/examples/apis/api"
+	"github.com/go-keg/swagger-api"
+	"github.com/go-keg/swagger-api/examples/apis/api"
 )
 
 func main() {

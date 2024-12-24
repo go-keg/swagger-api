@@ -23,8 +23,8 @@ protoc --proto_path=./api/ \
 package main
 
 import (
-	"github.com/eiixy/swagger-api"
-	"github.com/eiixy/swagger-api/examples/apis/api"
+	"github.com/go-keg/swagger-api"
+	"github.com/go-keg/swagger-api/examples/apis/api"
 	"net/http"
 )
 
