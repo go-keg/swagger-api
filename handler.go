@@ -1,7 +1,12 @@
 package swagger
 
 import (
+	"bytes"
+	"embed"
+	"fmt"
+	"gopkg.in/yaml.v3"
 	"html/template"
+	"io/fs"
 	"net/http"
 	"path"
 
@@ -49,6 +54,7 @@ type config struct {
 	prefix        string
 	swaggerUIPath string
 	openapiPath   string
+	urls          []OpenapiURL
 }
 
 func (r config) SwaggerUIPath() string {
@@ -79,8 +85,23 @@ func SetOpenapiPath(path string) Option {
 	}
 }
 
+func SetURLs(urls []OpenapiURL) Option {
+	return func(cfg *config) {
+		for i := range urls {
+			urls[i].URL = path.Join(cfg.OpenapiPath(), urls[i].URL)
+		}
+		cfg.urls = urls
+	}
+}
+
+type Openapi struct {
+	Info struct {
+		Title string
+	}
+}
+
 // Handler swagger ui
-func Handler(apis http.FileSystem, urls []OpenapiURL, opts ...Option) http.Handler {
+func Handler(apis embed.FS, opts ...Option) http.Handler {
 	cfg := config{
 		prefix:        "swagger",
 		swaggerUIPath: "ui",
@@ -89,8 +110,32 @@ func Handler(apis http.FileSystem, urls []OpenapiURL, opts ...Option) http.Handl
 	for _, opt := range opts {
 		opt(&cfg)
 	}
-	for i := range urls {
-		urls[i].URL = cfg.OpenapiPath() + urls[i].URL
+
+	if len(cfg.urls) == 0 {
+		err := fs.WalkDir(apis, ".", func(filePath string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			if !d.IsDir() {
+				content, err := apis.ReadFile(filePath)
+				if err != nil {
+					return err
+				}
+				var openapi Openapi
+				decoder := yaml.NewDecoder(bytes.NewReader(content))
+				if err := decoder.Decode(&openapi); err != nil {
+					panic(fmt.Errorf("解析配置文件失败: %v", err))
+				}
+				cfg.urls = append(cfg.urls, OpenapiURL{
+					URL:  path.Join(cfg.OpenapiPath(), filePath),
+					Name: openapi.Info.Title,
+				})
+			}
+			return nil
+		})
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	router := gin.New()
@@ -98,12 +143,12 @@ func Handler(apis http.FileSystem, urls []OpenapiURL, opts ...Option) http.Handl
 	gin.SetMode(gin.ReleaseMode)
 	router.GET(cfg.SwaggerUIPath(), func(c *gin.Context) {
 		c.HTML(200, "swagger-ui", map[string]any{
-			"URLs":   urls,
+			"URLs":   cfg.urls,
 			"Prefix": cfg.SwaggerUIPath() + "/public",
 		})
 	})
 	router.StaticFS(cfg.SwaggerUIPath()+"/public", http.FS(dist.SwagFS))
-	router.StaticFS(cfg.OpenapiPath(), apis)
+	router.StaticFS(cfg.OpenapiPath(), http.FS(apis))
 	return router
 }
 
