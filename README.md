@@ -10,6 +10,10 @@ go install github.com/google/gnostic/cmd/protoc-gen-openapi
 
 ## QuickStart
 
+```shell
+go get github.com/go-keg/swagger-api
+```
+
 [examples/apis/Makefile](./examples/apis/Makefile)
 ```shell
 protoc --proto_path=./api/ \
