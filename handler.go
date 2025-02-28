@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"path"
 
-	"github.com/gin-gonic/gin"
 	"github.com/go-keg/swagger-api/dist"
 	"gopkg.in/yaml.v3"
 )
@@ -136,18 +135,29 @@ func Handler(apis fs.FS, opts ...Option) http.Handler {
 		}
 	}
 
-	router := gin.New()
-	router.SetHTMLTemplate(template.Must(template.New("swagger-ui").Parse(IndexTemp)))
-	gin.SetMode(gin.ReleaseMode)
-	router.GET(cfg.SwaggerUIPath(), func(c *gin.Context) {
-		c.HTML(200, "swagger-ui", map[string]any{
-			"URLs":   cfg.urls,
-			"Prefix": cfg.SwaggerUIPath() + "/public",
-		})
-	})
-	router.StaticFS(cfg.SwaggerUIPath()+"/public", http.FS(dist.SwagFS))
-	router.StaticFS(cfg.OpenapiPath(), http.FS(apis))
-	return router
+	apiServer := http.FileServer(http.FS(apis))
+	staticServer := http.FileServer(http.FS(dist.SwagFS))
+	mux := http.NewServeMux()
+	mux.Handle(cfg.OpenapiPath()+"/", http.StripPrefix(cfg.OpenapiPath(), apiServer))
+	mux.Handle(cfg.SwaggerUIPath()+"/public/", http.StripPrefix(cfg.SwaggerUIPath()+"/public", staticServer))
+	mux.Handle(cfg.SwaggerUIPath(), renderIndex(map[string]any{
+		"URLs":   cfg.urls,
+		"Prefix": cfg.SwaggerUIPath() + "/public",
+	}))
+	return mux
+}
+
+func renderIndex(data any) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		tmpl, err := template.New("swagger-ui").Parse(IndexTemp)
+		if err != nil {
+			http.Error(w, "Could not load template", http.StatusInternalServerError)
+		}
+		err = tmpl.Execute(w, data)
+		if err != nil {
+			http.Error(w, "Could not render template", http.StatusInternalServerError)
+		}
+	}
 }
 
 type OpenapiURL struct {
